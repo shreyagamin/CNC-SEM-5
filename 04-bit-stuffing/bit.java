@@ -1,96 +1,94 @@
 
+
 import java.util.*;
 
 public class BitStuffing {
 
+    // SENDER: Performs bit stuffing
     static void sender(Scanner sc) {
 
-        // Read total number of input bits from user
         System.out.print("Enter the no of bits: ");
         int n = sc.nextInt();
 
-        System.out.println("Enter " + n + " bits :");
-
         int[] data = new int[n];
 
-        // Read input bits one by one
+        System.out.println("Enter " + n + " bits:");
         for (int i = 0; i < n; i++) {
             data[i] = sc.nextInt();
         }
 
-        // Flag pattern (01111110)
-        int[] add = {0, 1, 1, 1, 1, 1, 1, 0};
+        // Flag pattern
+        int[] flag = {0, 1, 1, 1, 1, 1, 1, 0};
 
         ArrayList<Integer> frame = new ArrayList<>();
 
         // Add starting flag
-        for (int bit : add) {
+        for (int bit : flag)
             frame.add(bit);
-        }
 
         int count = 0;
 
-        // Perform Bit Stuffing logic
-        for (int i : data) {
+        // Bit stuffing
+        for (int bit : data) {
 
+            // Insert 0 after five consecutive 1s
             if (count == 5) {
-                frame.add(0);  // Insert 0 after 5 consecutive 1's
+                frame.add(0);
                 count = 0;
             }
 
-            frame.add(i);
+            frame.add(bit);
 
-            if (i == 1) {
+            if (bit == 1)
                 count++;
-            } else {
+            else
                 count = 0;
-            }
         }
 
         // Add ending flag
-        for (int bit : add) {
+        for (int bit : flag)
             frame.add(bit);
-        }
 
-        System.out.println("Sent Frame : " + frame);
+        System.out.println("Sent Frame: " + frame);
 
-        // Pass stuffed frame to receiver
+        // Send frame to receiver
         receiver(frame);
     }
 
+
+    // RECEIVER: Performs bit de-stuffing
     static void receiver(ArrayList<Integer> frame) {
 
         ArrayList<Integer> data = new ArrayList<>();
 
         int count = 0;
 
-        // Remove starting and ending flag patterns
-        List<Integer> frame_body = frame.subList(8, frame.size() - 8);
+        // Remove starting and ending flags
+        for (int i = 8; i < frame.size() - 8; i++) {
 
-        // Perform De-stuffing
-        for (int i : frame_body) {
+            int bit = frame.get(i);
 
-            if (i == 1) {
-                data.add(i);
+            if (bit == 1) {
+                data.add(bit);
                 count++;
             }
-            else if (i == 0) {
-
+            else {
+                // Skip stuffed 0 after five 1s
                 if (count == 5) {
-                    // Ignore/remove stuffed 0
                     count = 0;
                 }
                 else {
-                    data.add(i);
+                    data.add(bit);
                     count = 0;
                 }
             }
         }
 
-        System.out.println("Data Received is : " + data);
+        System.out.println("Data Received: " + data);
     }
 
-    // Main function
+
+    // MAIN FUNCTION
     public static void main(String[] args) {
 
         Scanner sc = new Scanner(System.in);
