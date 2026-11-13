@@ -6,9 +6,9 @@ Divide a message into smaller frames, shuffle them, sort them using sequence num
 
 ## 2. Remember the flow
 
-**Sender:** `Read message → Divide into frames → Assign sequence numbers`
+## 2. Remember the flow
 
-**Receiver:** `Shuffle frames → Sort by sequence number → Join data → Get original message`
+`Read message → Divide into 3-character frames → Assign sequence numbers → Shuffle frames → Sort frames → Reconstruct original message`
 
 ## 3. Key code logic
 
