@@ -1,8 +1,5 @@
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Comparator;
-import java.util.List;
-import java.util.Scanner;
+
+import java.util.*;
 
 class Frame {
     int seqNo;
@@ -13,7 +10,6 @@ class Frame {
         this.data = data;
     }
 
-    @Override
     public String toString() {
         return "[" + seqNo + ", '" + data + "']";
     }
@@ -22,37 +18,34 @@ class Frame {
 public class FrameSorting {
     public static void main(String[] args) {
         Scanner sc = new Scanner(System.in);
-        System.out.print("Enter the message : ");
+
+        System.out.print("Enter the message: ");
         String msg = sc.nextLine();
 
         List<Frame> frames = new ArrayList<>();
+
+        // Divide message into 3-character frames
         for (int i = 0; i < msg.length(); i += 3) {
-            String chunk = msg.substring(i, Math.min(i + 3, msg.length()));
-            frames.add(new Frame(i / 3, chunk));
+            frames.add(new Frame(i / 3,
+                msg.substring(i, Math.min(i + 3, msg.length()))));
         }
-        System.out.println("Frames : " + frames);
 
+        System.out.println("Frames: " + frames);
+
+        // Shuffle and sort frames
         Collections.shuffle(frames);
-        System.out.println("Shuffled frames : " + frames);
+        System.out.println("Shuffled frames: " + frames);
 
-        frames.sort(Comparator.comparingInt(f -> f.seqNo));
-        System.out.println("Sorted frames : " + frames);
+        frames.sort((a, b) -> a.seqNo - b.seqNo);
+        System.out.println("Sorted frames: " + frames);
 
-        StringBuilder message = new StringBuilder();
-        for (Frame frame : frames) {
-            message.append(frame.data);
-        }
-        System.out.println("Final message : " + message.toString());
+        // Reconstruct original message
+        StringBuilder result = new StringBuilder();
+        for (Frame f : frames)
+            result.append(f.data);
+
+        System.out.println("Final message: " + result);
 
         sc.close();
     }
 }
-
-/*
-OUTPUT:
-Enter the message : HelloWorld
-Frames : [[0, 'Hel'], [1, 'loW'], [2, 'orl'], [3, 'd']]
-Shuffled frames : [[2, 'orl'], [0, 'Hel'], [3, 'd'], [1, 'loW']]
-Sorted frames : [[0, 'Hel'], [1, 'loW'], [2, 'orl'], [3, 'd']]
-Final message : HelloWorld
-*/
