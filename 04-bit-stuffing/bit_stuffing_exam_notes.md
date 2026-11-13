@@ -1,60 +1,55 @@
-# Bit Stuffing --- Exam Quick Notes
+# CRC – Exam Quick Notes
 
 ## 1. Aim
 
-Prevent the **flag pattern** from appearing inside data by inserting a
-`0` after every **five consecutive `1`s**.
+Detect errors during data transmission using **Cyclic Redundancy Check (CRC)** by performing XOR division.
 
 ## 2. Remember the flow
 
-**Sender:** `Read → Add start flag → Stuff bits → Add end flag → Send`
+**Sender:** `Read data → Append zeros → XOR division → Get CRC → Send codeword`
 
-**Receiver:** `Remove flags → Destuff → Print original data`
+**Receiver:** `Receive codeword → XOR division → Check remainder → Detect error`
 
 ## 3. Key code logic
 
 ### Sender
 
--   Flag: `01111110` (8 bits).
--   Start `count = 0`.
--   Before adding a bit: if `count == 5`, insert `0` and reset `count`.
--   Add the actual bit.
--   If bit is `1`, increment `count`; otherwise reset it to `0`.
--   Add the ending flag.
+- `div[]`: Stores the divisor (generator polynomial).
+- `m = div.length`: Finds the divisor length.
+- `temp[]`: Stores data followed by `m-1` zeros.
+- Perform XOR division:
+    - If `temp[i] == 1`, XOR the divisor with the current bits.
+    - If `temp[i] == 0`, move to the next position.
+- Extract the last `m-1` bits as `crc[]`.
+- Create `code[]` by combining original data and CRC.
 
 ### Receiver
 
--   Ignore the first and last 8 bits (flags).
--   For each data bit:
-    -   If it is `1`: add it and increment `count`.
-    -   If it is `0` and `count == 5`: skip it (stuffed bit) and reset
-        `count`.
-    -   Otherwise add the `0` and reset `count`.
+- Perform XOR division on the received `code[]`.
+- Check the last `m-1` bits (remainder).
+- If all bits are `0` → **No error detected.**
+- If any bit is `1` → **Error detected.**
 
 ## 4. Memory tricks
 
--   **5 ones → stuff 1 zero.**
--   **Sender inserts; receiver skips.**
--   `count` tracks only consecutive `1`s.
--   A real `0` resets the count.
--   Flags are added at both ends and removed before decoding.
+- **Append zeros:** Number of zeros = divisor length − 1.
+- **XOR division:** Divide only when the current bit is `1`.
+- **CRC:** Last `m-1` bits of the sender's division.
+- **Codeword:** Original data + CRC.
+- **Receiver:** Checks whether the remainder is zero.
 
 ## 5. Tiny dry run
 
-Input: `1 1 1 1 1 1`
+Data: `1 0 1 1`
 
-Stuffed data: `1 1 1 1 1 0 1`
+Divisor: `1 0 1`
 
-The inserted `0` is removed by the receiver, restoring the original six
-bits.
+- Divisor length = 3.
+- Append 2 zeros: `1 0 1 1 0 0`.
+- Perform XOR division.
+- Suppose the CRC obtained is `1 0`.
+- Codeword: `1 0 1 1 1 0`.
 
-## 6. Exam checklist
+The receiver divides the received codeword again. A zero remainder means no error is detected.
 
--   [ ] Flag is `01111110`.
--   [ ] Stuff `0` after every five consecutive `1`s.
--   [ ] Check for stuffing **before adding the next bit**.
--   [ ] Receiver removes only the stuffed `0`.
--   [ ] Original data is recovered.
-
-**One-line recall:** "Frame with flags, count five 1s, insert zero;
-receiver removes that zero."
+**One-line recall:** "Append zeros, XOR divide, attach CRC; receiver divides again and checks for a zero remainder."
