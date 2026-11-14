@@ -4,30 +4,45 @@ import java.net.*;
 import java.nio.file.*;
 
 public class TCPServer {
-    public static void main(String[] args) throws IOException {
+    public static void main(String[] args) throws Exception {
+
+        // Create server on port 8888
         ServerSocket server = new ServerSocket(8888);
-        System.out.println("Server is listening for incoming connections...");
+        System.out.println("Server waiting...");
 
         while (true) {
-            Socket client = server.accept();
-            System.out.println("Accepted connection from " + client.getRemoteSocketAddress());
 
+            // Accept client connection
+            Socket client = server.accept();
+
+            // Read file name from client
             BufferedReader in = new BufferedReader(
                 new InputStreamReader(client.getInputStream()));
 
+            String name = in.readLine();
+
+            // Get output stream to send data
             OutputStream out = client.getOutputStream();
 
-            String name = in.readLine();
-            System.out.println("Received file name : " + name);
-
+            // Check whether file exists
             File file = new File(name);
 
             if (file.exists() && file.isFile()) {
-                out.write(Files.readAllBytes(file.toPath()));
+
+                // Read file and send contents
+                byte[] data = Files.readAllBytes(file.toPath());
+                out.write(data);
+
+                System.out.println("File sent successfully");
+
             } else {
+
+                // Send error if file is missing
                 out.write("File not found".getBytes());
+                System.out.println("File not found");
             }
 
+            // Close client connection
             out.flush();
             client.close();
         }
