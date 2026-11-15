@@ -2,31 +2,20 @@
 import socket
 import os
 
-# Create server
-server = socket.socket()
-server.bind(('localhost', 8888))
-server.listen(1)
+s = socket.socket()
+s.bind(('localhost', 8888))
+s.listen(1)
 
 print("Server is listening...")
 
 while True:
-    # Accept client
-    client, addr = server.accept()
+    c, addr = s.accept()
+    name = c.recv(1024).decode()
 
-    # Receive file name
-    name = client.recv(1024).decode()
-    print("Received file name:", name)
-
-    # Check if file exists
-    if os.path.exists(name) and os.path.isfile(name):
-
-        # Open and send file
-        with open(name, 'rb') as file:
-            client.sendall(file.read())
-
+    if os.path.isfile(name):
+        with open(name, 'rb') as f:
+            c.sendall(f.read())
     else:
-        # Send error message
-        client.sendall(b'File not found')
+        c.sendall(b'File not found')
 
-    # Close client
-    client.close()
+    c.close()
