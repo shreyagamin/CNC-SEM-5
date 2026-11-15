@@ -1,4 +1,3 @@
-
 import socket
 import os
 
@@ -10,10 +9,10 @@ print("Server is listening...")
 
 while True:
     c, addr = s.accept()
-    name = c.recv(1024).decode()
+    data = c.recv(1024).decode()
 
-    if os.path.isfile(name):
-        with open(name, 'rb') as f:
+    if os.path.isfile(data):
+        with open(data, 'rb') as f:
             c.sendall(f.read())
     else:
         c.sendall(b'File not found')
