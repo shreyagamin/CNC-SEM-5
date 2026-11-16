@@ -1,48 +1,42 @@
 
-
 import java.util.*;
 
 public class BitStuffing {
+    public static void main(String[] args) {
+        Scanner sc = new Scanner(System.in);
 
-    // SENDER: Performs bit stuffing
-    static void sender(Scanner sc) {
-
-        System.out.print("Enter the no of bits: ");
+        System.out.print("Enter the number of bits: ");
         int n = sc.nextInt();
 
-        int[] data = new int[n];
+        int data[] = new int[n];
 
-        System.out.println("Enter " + n + " bits:");
+        System.out.println("Enter the bits:");
         for (int i = 0; i < n; i++) {
             data[i] = sc.nextInt();
         }
 
-        // Flag pattern
-        int[] flag = {0, 1, 1, 1, 1, 1, 1, 0};
-
+        int flag[] = {0, 1, 1, 1, 1, 1, 1, 0};
         ArrayList<Integer> frame = new ArrayList<>();
 
         // Add starting flag
         for (int bit : flag)
             frame.add(bit);
 
+        // Bit stuffing
         int count = 0;
 
-        // Bit stuffing
         for (int bit : data) {
-
-            // Insert 0 after five consecutive 1s
-            if (count == 5) {
-                frame.add(0);
-                count = 0;
-            }
-
             frame.add(bit);
 
             if (bit == 1)
                 count++;
             else
                 count = 0;
+
+            if (count == 5) {
+                frame.add(0);
+                count = 0;
+            }
         }
 
         // Add ending flag
@@ -51,49 +45,25 @@ public class BitStuffing {
 
         System.out.println("Sent Frame: " + frame);
 
-        // Send frame to receiver
-        receiver(frame);
-    }
+        // Bit de-stuffing
+        ArrayList<Integer> received = new ArrayList<>();
+        count = 0;
 
-
-    // RECEIVER: Performs bit de-stuffing
-    static void receiver(ArrayList<Integer> frame) {
-
-        ArrayList<Integer> data = new ArrayList<>();
-
-        int count = 0;
-
-        // Remove starting and ending flags
         for (int i = 8; i < frame.size() - 8; i++) {
-
             int bit = frame.get(i);
 
             if (bit == 1) {
-                data.add(bit);
+                received.add(bit);
                 count++;
-            }
-            else {
-                // Skip stuffed 0 after five 1s
-                if (count == 5) {
-                    count = 0;
-                }
-                else {
-                    data.add(bit);
-                    count = 0;
-                }
+            } else {
+                if (count != 5)
+                    received.add(bit);
+
+                count = 0;
             }
         }
 
-        System.out.println("Data Received: " + data);
-    }
-
-
-    // MAIN FUNCTION
-    public static void main(String[] args) {
-
-        Scanner sc = new Scanner(System.in);
-
-        sender(sc);
+        System.out.println("Data Received: " + received);
 
         sc.close();
     }
