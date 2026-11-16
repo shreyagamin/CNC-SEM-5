@@ -2,18 +2,16 @@
 import java.util.*;
 
 public class CRC {
-
     public static void main(String[] args) {
-
         Scanner sc = new Scanner(System.in);
 
-        int[] div = {1, 0, 0, 1};
+        int div[] = {1, 0, 0, 1};
         int m = div.length;
 
         System.out.print("Enter number of bits: ");
         int n = sc.nextInt();
 
-        int[] data = new int[n];
+        int data[] = new int[n];
 
         System.out.println("Enter data bits:");
         for (int i = 0; i < n; i++)
@@ -21,80 +19,61 @@ public class CRC {
 
         if (n < m) {
             System.out.println("Invalid data");
-        }
-        else {
+        } else {
+            int code[] = new int[n + m - 1];
 
-            // Append zeros
-            int[] temp = new int[n + m - 1];
-
-            for (int i = 0; i < n; i++)
-                temp[i] = data[i];
-
-            // Sender: XOR division
-            for (int i = 0; i < n; i++) {
-                if (temp[i] == 1) {
-                    for (int j = 0; j < m; j++)
-                        temp[i + j] ^= div[j];
-                }
-            }
-
-            // Get CRC bits
-            int[] crc = new int[m - 1];
-
-            for (int i = 0; i < m - 1; i++)
-                crc[i] = temp[n + i];
-
-            System.out.println("CRC bits: " + Arrays.toString(crc));
-
-            // Create transmitted codeword
-            int[] code = new int[n + m - 1];
-
+            // Copy data and append zeros
             for (int i = 0; i < n; i++)
                 code[i] = data[i];
 
-            for (int i = 0; i < m - 1; i++)
-                code[n + i] = crc[i];
+            // Sender: CRC division
+            for (int i = 0; i < n; i++)
+                if (code[i] == 1)
+                    for (int j = 0; j < m; j++)
+                        code[i + j] ^= div[j];
+
+            // Add CRC to original data
+            for (int i = 0; i < n; i++)
+                code[i] = data[i];
+
+            System.out.println("CRC: " +
+                Arrays.toString(Arrays.copyOfRange(code, n, n + m - 1)));
 
             System.out.println("Transmitted codeword: " +
-                    Arrays.toString(code));
+                Arrays.toString(code));
 
             // Introduce error
             System.out.print("Introduce error (Y/N): ");
-            String choice = sc.next();
-
-            if (choice.equalsIgnoreCase("Y")) {
+            if (sc.next().equalsIgnoreCase("Y")) {
                 System.out.print("Enter position: ");
                 int pos = sc.nextInt();
 
-                code[pos - 1] = 1 - code[pos - 1];
+                if (pos >= 1 && pos <= code.length)
+                    code[pos - 1] ^= 1;
+                else
+                    System.out.println("Invalid position");
             }
 
             System.out.println("Received data: " +
-                    Arrays.toString(code));
+                Arrays.toString(code));
 
-            // Receiver: XOR division
-            for (int i = 0; i < n; i++) {
-                if (code[i] == 1) {
+            // Receiver: CRC division
+            for (int i = 0; i < n; i++)
+                if (code[i] == 1)
                     for (int j = 0; j < m; j++)
                         code[i + j] ^= div[j];
-                }
-            }
 
             // Check remainder
             boolean error = false;
 
-            for (int i = n; i < n + m - 1; i++) {
+            for (int i = n; i < code.length; i++)
                 if (code[i] != 0)
                     error = true;
-            }
 
             System.out.println("Remainder: " +
-                    Arrays.toString(Arrays.copyOfRange(code, n, n + m - 1)));
+                Arrays.toString(Arrays.copyOfRange(code, n, code.length)));
 
-            if (error)
-                System.out.println("Error detected");
-            else
-                System.out.println("No Error detected");
+            System.out.println(error ? "Error detected" : "No Error detected");
         }
 
         sc.close();
